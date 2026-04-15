@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using todoApp;
 
 namespace todoApp
@@ -20,6 +21,11 @@ namespace todoApp
 
         private void ProfileWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            this.Opacity = 0;
+
+            var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
+            this.BeginAnimation(Window.OpacityProperty, fadeIn);
+
             LoadProfiles();
         }
 
