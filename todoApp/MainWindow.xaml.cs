@@ -12,20 +12,25 @@ namespace todoApp
     public partial class MainWindow : Window
     {
         private TaskService _taskService = new TaskService();
+        private ProfileService _profileService = new ProfileService();
         private string _profileId;
         private string _profileName;
         private string _profileColor;
+        private string _currentTheme;
+        private Profile _currentProfile;
         private DateTime _currentDate = DateTime.Today;
         private DateTime _selectedDate = DateTime.Today;
         private bool _isMonthView = true;
         private bool _taskPanelOpen = false;
 
-        public MainWindow(string profileId, string profileName, string profileColor)
+        public MainWindow(string profileId, string profileName, string profileColor, string theme)
         {
             InitializeComponent();
             _profileId = profileId;
             _profileName = profileName;
             _profileColor = profileColor;
+            _currentTheme = theme;
+            _currentProfile = _profileService.LoadProfiles().Find(p => p.Id == profileId)!;
             Loaded += MainWindow_Loaded;
         }
 
@@ -41,8 +46,14 @@ namespace todoApp
             ProfileInitialsText.Text = GetInitials(_profileName);
             ProfileCircle.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(_profileColor)!;
 
-            // Build calendar
-            BuildCalendar();
+            // Profile click opens settings
+            ProfileCircle.MouseLeftButtonUp += ProfileCircle_Clicked;
+            ProfileNameText.MouseLeftButtonUp += ProfileCircle_Clicked;
+            ProfileCircle.Cursor = Cursors.Hand;
+            ProfileNameText.Cursor = Cursors.Hand;
+
+            // Apply theme and build calendar
+            ApplyTheme(_currentTheme);
         }
 
         private string GetInitials(string name)
@@ -51,6 +62,80 @@ namespace todoApp
             if (parts.Length >= 2)
                 return $"{parts[0][0]}{parts[1][0]}".ToUpper();
             return name.Length > 0 ? name[0].ToString().ToUpper() : "?";
+        }
+
+        // ─── Settings Popup ──────────────────────────────────────────────
+
+        private void ProfileCircle_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            var settings = new SettingsPopup(_currentProfile, this);
+            settings.ThemeChanged += (newTheme) => ApplyTheme(newTheme);
+            settings.ProfileDeleted += () =>
+            {
+                var profileWindow = new ProfileWindow();
+                profileWindow.Show();
+                this.Close();
+            };
+            settings.Show();
+        }
+
+        // ─── Theme ───────────────────────────────────────────────────────
+
+        private void ApplyTheme(string themeName)
+        {
+            _currentTheme = themeName;
+            var t = ThemeService.GetTheme(themeName);
+
+            var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.2));
+            fadeOut.Completed += (s, e) =>
+            {
+                // Window background
+                RootBorder.Background = t.WindowBackground;
+
+                // Top bar
+                TopBar.Background = t.TopBarBackground;
+
+                // Text colors
+                ProfileNameText.Foreground = t.PrimaryText;
+                MonthYearText.Foreground = t.PrimaryText;
+                SelectedDateText.Foreground = t.PrimaryText;
+
+                // Nav buttons
+                PrevBtn.Foreground = t.PrimaryText;
+                PrevBtn.BorderBrush = t.ButtonBorder;
+                NextBtn.Foreground = t.PrimaryText;
+                NextBtn.BorderBrush = t.ButtonBorder;
+
+                // Toggle buttons
+                MonthViewBtn.Background = _isMonthView ? t.AccentColor : Brushes.Transparent;
+                MonthViewBtn.Foreground = _isMonthView ? Brushes.White : t.SecondaryText;
+                WeekViewBtn.Background = !_isMonthView ? t.AccentColor : Brushes.Transparent;
+                WeekViewBtn.Foreground = !_isMonthView ? Brushes.White : t.SecondaryText;
+
+                // Task panel
+                TaskPanel.Background = t.TaskPanelBackground;
+
+                // Inputs
+                TaskTitleInput.Background = t.InputBackground;
+                TaskTitleInput.Foreground = t.PrimaryText;
+                TaskTitleInput.BorderBrush = t.InputBorder;
+                TaskNotesInput.Background = t.InputBackground;
+                TaskNotesInput.Foreground = t.PrimaryText;
+                TaskNotesInput.BorderBrush = t.InputBorder;
+
+                // Add task button
+                AddTaskBtn.Background = t.AccentColor;
+
+                // Rebuild with new theme colors
+                BuildCalendar();
+                if (_taskPanelOpen)
+                    LoadTasksForDate(_selectedDate);
+
+                var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.2));
+                this.BeginAnimation(Window.OpacityProperty, fadeIn);
+            };
+
+            this.BeginAnimation(Window.OpacityProperty, fadeOut);
         }
 
         // ─── Calendar Building ───────────────────────────────────────────
@@ -65,6 +150,7 @@ namespace todoApp
 
         private void BuildMonthView()
         {
+            var t = ThemeService.GetTheme(_currentTheme);
             MonthYearText.Text = _currentDate.ToString("MMMM yyyy");
 
             var datesWithTasks = _taskService.GetDatesWithTasks(
@@ -81,7 +167,7 @@ namespace todoApp
                 {
                     Text = days[i],
                     FontSize = 12,
-                    Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#AAAAAA")!,
+                    Foreground = t.SecondaryText,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
                 Grid.SetColumn(header, i);
@@ -112,7 +198,7 @@ namespace todoApp
                 int row = cellIndex / 7;
                 int col = cellIndex % 7;
 
-                var cell = CreateDayCell(date, datesWithTasks);
+                var cell = CreateDayCell(date, datesWithTasks, t);
                 Grid.SetRow(cell, row);
                 Grid.SetColumn(cell, col);
                 CalendarGrid.Children.Add(cell);
@@ -121,6 +207,7 @@ namespace todoApp
 
         private void BuildWeekView()
         {
+            var t = ThemeService.GetTheme(_currentTheme);
             DateTime startOfWeek = _currentDate.AddDays(-(int)_currentDate.DayOfWeek);
             DateTime endOfWeek = startOfWeek.AddDays(6);
             MonthYearText.Text = $"{startOfWeek:MMM d} – {endOfWeek:MMM d, yyyy}";
@@ -139,7 +226,7 @@ namespace todoApp
                 {
                     Text = days[i],
                     FontSize = 12,
-                    Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#AAAAAA")!,
+                    Foreground = t.SecondaryText,
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
                 Grid.SetColumn(header, i);
@@ -159,14 +246,14 @@ namespace todoApp
             for (int i = 0; i < 7; i++)
             {
                 DateTime date = startOfWeek.AddDays(i);
-                var cell = CreateDayCell(date, datesWithTasks);
+                var cell = CreateDayCell(date, datesWithTasks, t);
                 Grid.SetRow(cell, 0);
                 Grid.SetColumn(cell, i);
                 CalendarGrid.Children.Add(cell);
             }
         }
 
-        private Border CreateDayCell(DateTime date, List<DateTime> datesWithTasks)
+        private Border CreateDayCell(DateTime date, List<DateTime> datesWithTasks, AppTheme t)
         {
             bool isToday = date.Date == DateTime.Today;
             bool isSelected = date.Date == _selectedDate.Date;
@@ -178,13 +265,11 @@ namespace todoApp
                 CornerRadius = new CornerRadius(8),
                 Cursor = Cursors.Hand,
                 Background = isSelected
-                    ? (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!
+                    ? t.CalendarCellSelected
                     : isToday
-                        ? (SolidColorBrush)new BrushConverter().ConvertFrom("#2A2A2A")!
-                        : (SolidColorBrush)new BrushConverter().ConvertFrom("#1A1A1A")!,
-                BorderBrush = isToday
-                    ? (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!
-                    : (SolidColorBrush)new BrushConverter().ConvertFrom("#333333")!,
+                        ? t.CalendarCellToday
+                        : t.CalendarCellBackground,
+                BorderBrush = isToday ? t.AccentColor : t.CalendarCellBorder,
                 BorderThickness = new Thickness(isToday ? 1.5 : 0.5)
             };
 
@@ -200,7 +285,7 @@ namespace todoApp
                 Text = date.Day.ToString(),
                 FontSize = 14,
                 FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
-                Foreground = Brushes.White,
+                Foreground = isSelected ? Brushes.White : t.PrimaryText,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
 
@@ -212,8 +297,7 @@ namespace todoApp
                 {
                     Width = 6,
                     Height = 6,
-                    Fill = isSelected ? Brushes.White :
-                        (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!,
+                    Fill = isSelected ? Brushes.White : t.AccentColor,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     Margin = new Thickness(0, 4, 0, 0)
                 };
@@ -256,21 +340,22 @@ namespace todoApp
 
         private void LoadTasksForDate(DateTime date)
         {
+            var t = ThemeService.GetTheme(_currentTheme);
             TasksList.Children.Clear();
             var tasks = _taskService.GetTasksForDate(_profileId, date);
 
             foreach (var task in tasks)
             {
-                var taskCard = CreateTaskCard(task);
+                var taskCard = CreateTaskCard(task, t);
                 TasksList.Children.Add(taskCard);
             }
         }
 
-        private Border CreateTaskCard(TaskItem task)
+        private Border CreateTaskCard(TaskItem task, AppTheme t)
         {
             var card = new Border
             {
-                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#2A2A2A")!,
+                Background = t.TaskCardBackground,
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(10),
                 Margin = new Thickness(0, 0, 0, 8)
@@ -307,9 +392,7 @@ namespace todoApp
             {
                 Text = task.Title,
                 FontSize = 13,
-                Foreground = task.IsCompleted
-                    ? (SolidColorBrush)new BrushConverter().ConvertFrom("#666666")!
-                    : Brushes.White,
+                Foreground = task.IsCompleted ? t.CompletedText : t.PrimaryText,
                 TextDecorations = task.IsCompleted ? TextDecorations.Strikethrough : null,
                 TextWrapping = TextWrapping.Wrap
             };
@@ -321,7 +404,7 @@ namespace todoApp
                 {
                     Text = task.Notes,
                     FontSize = 11,
-                    Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#888888")!,
+                    Foreground = t.SecondaryText,
                     TextWrapping = TextWrapping.Wrap,
                     Margin = new Thickness(0, 4, 0, 0)
                 };
@@ -336,7 +419,7 @@ namespace todoApp
                 Width = 24,
                 Height = 24,
                 Background = Brushes.Transparent,
-                Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#666666")!,
+                Foreground = t.SecondaryText,
                 BorderThickness = new Thickness(0),
                 Cursor = Cursors.Hand,
                 VerticalAlignment = VerticalAlignment.Top
@@ -404,20 +487,22 @@ namespace todoApp
         private void MonthViewBtn_Click(object sender, RoutedEventArgs e)
         {
             _isMonthView = true;
-            MonthViewBtn.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!;
+            var t = ThemeService.GetTheme(_currentTheme);
+            MonthViewBtn.Background = t.AccentColor;
             MonthViewBtn.Foreground = Brushes.White;
             WeekViewBtn.Background = Brushes.Transparent;
-            WeekViewBtn.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#AAAAAA")!;
+            WeekViewBtn.Foreground = t.SecondaryText;
             BuildCalendar();
         }
 
         private void WeekViewBtn_Click(object sender, RoutedEventArgs e)
         {
             _isMonthView = false;
-            WeekViewBtn.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!;
+            var t = ThemeService.GetTheme(_currentTheme);
+            WeekViewBtn.Background = t.AccentColor;
             WeekViewBtn.Foreground = Brushes.White;
             MonthViewBtn.Background = Brushes.Transparent;
-            MonthViewBtn.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#AAAAAA")!;
+            MonthViewBtn.Foreground = t.SecondaryText;
             BuildCalendar();
         }
 
