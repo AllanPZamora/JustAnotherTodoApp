@@ -11,6 +11,7 @@ namespace todoApp
     {
         private ProfileService _profileService = new ProfileService();
 
+        // Theme brushes
         private readonly SolidColorBrush DarkBackground = new SolidColorBrush(Color.FromRgb(20, 20, 20));
         private readonly SolidColorBrush CardBorder = new SolidColorBrush(Color.FromRgb(68, 68, 68));
         private readonly SolidColorBrush SecondaryText = new SolidColorBrush(Color.FromRgb(170, 170, 170));
@@ -30,6 +31,21 @@ namespace todoApp
             this.BeginAnimation(Window.OpacityProperty, fadeIn);
 
             LoadProfiles();
+        }
+
+        // Close button logic
+        private void CloseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Are you sure you want to exit?",
+                "Confirm Exit",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                Application.Current.Shutdown();
+            }
         }
 
         private void LoadProfiles()
