@@ -112,7 +112,9 @@ namespace todoApp
 
             card.MouseLeftButtonUp += (s, e) =>
             {
-                MessageBox.Show($"Welcome, {vm.Name}!");
+                var mainWindow = new MainWindow(vm.Id, vm.Name, vm.Color);
+                mainWindow.Show();
+                this.Close();
             };
 
             return card;
