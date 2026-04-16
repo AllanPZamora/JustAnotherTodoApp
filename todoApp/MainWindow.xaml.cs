@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,23 +36,19 @@ namespace todoApp
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Fade in
             this.Opacity = 0;
             var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.5));
             this.BeginAnimation(Window.OpacityProperty, fadeIn);
 
-            // Set profile info
             ProfileNameText.Text = _profileName;
             ProfileInitialsText.Text = GetInitials(_profileName);
             ProfileCircle.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(_profileColor)!;
 
-            // Profile click opens settings
             ProfileCircle.MouseLeftButtonUp += ProfileCircle_Clicked;
             ProfileNameText.MouseLeftButtonUp += ProfileCircle_Clicked;
             ProfileCircle.Cursor = Cursors.Hand;
             ProfileNameText.Cursor = Cursors.Hand;
 
-            // Apply theme and build calendar
             ApplyTheme(_currentTheme);
         }
 
@@ -89,44 +85,28 @@ namespace todoApp
             var fadeOut = new DoubleAnimation(1, 0, TimeSpan.FromSeconds(0.2));
             fadeOut.Completed += (s, e) =>
             {
-                // Window background
                 RootBorder.Background = t.WindowBackground;
-
-                // Top bar
                 TopBar.Background = t.TopBarBackground;
-
-                // Text colors
                 ProfileNameText.Foreground = t.PrimaryText;
                 MonthYearText.Foreground = t.PrimaryText;
                 SelectedDateText.Foreground = t.PrimaryText;
-
-                // Nav buttons
                 PrevBtn.Foreground = t.PrimaryText;
                 PrevBtn.BorderBrush = t.ButtonBorder;
                 NextBtn.Foreground = t.PrimaryText;
                 NextBtn.BorderBrush = t.ButtonBorder;
-
-                // Toggle buttons
                 MonthViewBtn.Background = _isMonthView ? t.AccentColor : Brushes.Transparent;
                 MonthViewBtn.Foreground = _isMonthView ? Brushes.White : t.SecondaryText;
                 WeekViewBtn.Background = !_isMonthView ? t.AccentColor : Brushes.Transparent;
                 WeekViewBtn.Foreground = !_isMonthView ? Brushes.White : t.SecondaryText;
-
-                // Task panel
                 TaskPanel.Background = t.TaskPanelBackground;
-
-                // Inputs
                 TaskTitleInput.Background = t.InputBackground;
                 TaskTitleInput.Foreground = t.PrimaryText;
                 TaskTitleInput.BorderBrush = t.InputBorder;
                 TaskNotesInput.Background = t.InputBackground;
                 TaskNotesInput.Foreground = t.PrimaryText;
                 TaskNotesInput.BorderBrush = t.InputBorder;
-
-                // Add task button
                 AddTaskBtn.Background = t.AccentColor;
 
-                // Rebuild with new theme colors
                 BuildCalendar();
                 if (_taskPanelOpen)
                     LoadTasksForDate(_selectedDate);
@@ -134,8 +114,29 @@ namespace todoApp
                 var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.2));
                 this.BeginAnimation(Window.OpacityProperty, fadeIn);
             };
-
             this.BeginAnimation(Window.OpacityProperty, fadeOut);
+        }
+
+        // ─── Recurrence Combo ─────────────────────────────────────────────
+
+        private void RecurrenceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (RecurrenceEndPicker == null) return;
+            // Show end-date picker only when a recurrence is chosen
+            RecurrenceEndPicker.Visibility = RecurrenceCombo.SelectedIndex > 0
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        private RecurrenceType GetSelectedRecurrence()
+        {
+            return RecurrenceCombo.SelectedIndex switch
+            {
+                1 => RecurrenceType.Daily,
+                2 => RecurrenceType.Weekly,
+                3 => RecurrenceType.Monthly,
+                _ => RecurrenceType.None
+            };
         }
 
         // ─── Calendar Building ───────────────────────────────────────────
@@ -156,7 +157,6 @@ namespace todoApp
             var datesWithTasks = _taskService.GetDatesWithTasks(
                 _profileId, _currentDate.Year, _currentDate.Month);
 
-            // Day headers
             DayHeadersGrid.Children.Clear();
             DayHeadersGrid.ColumnDefinitions.Clear();
             string[] days = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -174,7 +174,6 @@ namespace todoApp
                 DayHeadersGrid.Children.Add(header);
             }
 
-            // Calendar grid
             CalendarGrid.Children.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
             CalendarGrid.RowDefinitions.Clear();
@@ -215,7 +214,6 @@ namespace todoApp
             var datesWithTasks = _taskService.GetDatesWithTasks(
                 _profileId, _currentDate.Year, _currentDate.Month);
 
-            // Day headers
             DayHeadersGrid.Children.Clear();
             DayHeadersGrid.ColumnDefinitions.Clear();
             string[] days = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
@@ -233,7 +231,6 @@ namespace todoApp
                 DayHeadersGrid.Children.Add(header);
             }
 
-            // Week grid
             CalendarGrid.Children.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
             CalendarGrid.RowDefinitions.Clear();
@@ -288,7 +285,6 @@ namespace todoApp
                 Foreground = isSelected ? Brushes.White : t.PrimaryText,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-
             stack.Children.Add(dayText);
 
             if (hasTasks)
@@ -323,6 +319,9 @@ namespace todoApp
             SelectedDateText.Text = date.ToString("dddd, MMMM d");
             TaskTitleInput.Text = "";
             TaskNotesInput.Text = "";
+            RecurrenceCombo.SelectedIndex = 0;
+            RecurrenceEndPicker.SelectedDate = null;
+            RecurrenceEndPicker.Visibility = Visibility.Collapsed;
             LoadTasksForDate(date);
 
             if (!_taskPanelOpen)
@@ -361,10 +360,13 @@ namespace todoApp
                 Margin = new Thickness(0, 0, 0, 8)
             };
 
-            var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var outerStack = new StackPanel();
+
+            // ── Top row: checkbox + title + delete ──
+            var topGrid = new Grid();
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            topGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             // Checkbox
             var checkbox = new CheckBox
@@ -373,20 +375,34 @@ namespace todoApp
                 VerticalAlignment = VerticalAlignment.Top,
                 Margin = new Thickness(0, 2, 8, 0)
             };
+
+            bool isRecurring = task.Recurrence != RecurrenceType.None;
+            DateTime occurrenceDate = task.Date; // snapshot date for recurring
+
             checkbox.Checked += (s, e) =>
             {
-                task.IsCompleted = true;
-                _taskService.UpdateTask(task);
+                if (isRecurring)
+                    _taskService.SetRecurringOccurrenceCompleted(task.Id, occurrenceDate, true);
+                else
+                {
+                    task.IsCompleted = true;
+                    _taskService.UpdateTask(task);
+                }
                 LoadTasksForDate(_selectedDate);
             };
             checkbox.Unchecked += (s, e) =>
             {
-                task.IsCompleted = false;
-                _taskService.UpdateTask(task);
+                if (isRecurring)
+                    _taskService.SetRecurringOccurrenceCompleted(task.Id, occurrenceDate, false);
+                else
+                {
+                    task.IsCompleted = false;
+                    _taskService.UpdateTask(task);
+                }
                 LoadTasksForDate(_selectedDate);
             };
 
-            // Text
+            // Text block
             var textStack = new StackPanel();
             var titleText = new TextBlock
             {
@@ -411,6 +427,26 @@ namespace todoApp
                 textStack.Children.Add(notesText);
             }
 
+            // Recurrence badge
+            if (isRecurring)
+            {
+                string badgeText = task.Recurrence switch
+                {
+                    RecurrenceType.Daily   => "🔁 Daily",
+                    RecurrenceType.Weekly  => "📅 Weekly",
+                    RecurrenceType.Monthly => "🗓 Monthly",
+                    _                      => ""
+                };
+                var badge = new TextBlock
+                {
+                    Text = badgeText,
+                    FontSize = 10,
+                    Foreground = t.AccentColor,
+                    Margin = new Thickness(0, 4, 0, 0)
+                };
+                textStack.Children.Add(badge);
+            }
+
             // Delete button
             var deleteBtn = new Button
             {
@@ -424,23 +460,94 @@ namespace todoApp
                 Cursor = Cursors.Hand,
                 VerticalAlignment = VerticalAlignment.Top
             };
-            deleteBtn.Click += (s, e) =>
-            {
-                _taskService.DeleteTask(task.Id);
-                LoadTasksForDate(_selectedDate);
-                BuildCalendar();
-            };
+            deleteBtn.Click += (s, e) => OnDeleteTask(task, isRecurring, occurrenceDate);
 
             Grid.SetColumn(checkbox, 0);
             Grid.SetColumn(textStack, 1);
             Grid.SetColumn(deleteBtn, 2);
+            topGrid.Children.Add(checkbox);
+            topGrid.Children.Add(textStack);
+            topGrid.Children.Add(deleteBtn);
 
-            grid.Children.Add(checkbox);
-            grid.Children.Add(textStack);
-            grid.Children.Add(deleteBtn);
-
-            card.Child = grid;
+            outerStack.Children.Add(topGrid);
+            card.Child = outerStack;
             return card;
+        }
+
+        private void OnDeleteTask(TaskItem task, bool isRecurring, DateTime occurrenceDate)
+        {
+            if (!isRecurring)
+            {
+                _taskService.DeleteTask(task.Id);
+                LoadTasksForDate(_selectedDate);
+                BuildCalendar();
+                return;
+            }
+
+            // Recurring: ask how to delete
+            var dialog = new Window
+            {
+                Title = "Delete Recurring Task",
+                Width = 340,
+                Height = 180,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = this,
+                WindowStyle = WindowStyle.ToolWindow,
+                ResizeMode = ResizeMode.NoResize,
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#1F1F1F")!
+            };
+
+            var panel = new StackPanel { Margin = new Thickness(20) };
+
+            var label = new TextBlock
+            {
+                Text = "Delete recurring task:",
+                FontSize = 13,
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                Margin = new Thickness(0, 0, 0, 16)
+            };
+            panel.Children.Add(label);
+
+            var btnStyle = new Style(typeof(Button));
+            btnStyle.Setters.Add(new Setter(Button.HeightProperty, 34.0));
+            btnStyle.Setters.Add(new Setter(Button.ForegroundProperty, Brushes.White));
+            btnStyle.Setters.Add(new Setter(Button.BorderThicknessProperty, new Thickness(0)));
+            btnStyle.Setters.Add(new Setter(Button.MarginProperty, new Thickness(0, 0, 0, 8)));
+            btnStyle.Setters.Add(new Setter(Button.CursorProperty, Cursors.Hand));
+
+            var onlyBtn = new Button
+            {
+                Content = "Only this occurrence",
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#2A2A2A")!,
+                Style = btnStyle
+            };
+            onlyBtn.Click += (s, e) =>
+            {
+                _taskService.DeleteRecurringOccurrence(task.Id, occurrenceDate);
+                LoadTasksForDate(_selectedDate);
+                BuildCalendar();
+                dialog.Close();
+            };
+
+            var futureBtn = new Button
+            {
+                Content = "This and all future occurrences",
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#E50914")!,
+                Style = btnStyle
+            };
+            futureBtn.Click += (s, e) =>
+            {
+                _taskService.DeleteRecurringFromDate(task.Id, occurrenceDate);
+                LoadTasksForDate(_selectedDate);
+                BuildCalendar();
+                dialog.Close();
+            };
+
+            panel.Children.Add(onlyBtn);
+            panel.Children.Add(futureBtn);
+            dialog.Content = panel;
+            dialog.ShowDialog();
         }
 
         private void AddTaskBtn_Click(object sender, RoutedEventArgs e)
@@ -451,17 +558,26 @@ namespace todoApp
                 return;
             }
 
+            var recurrence = GetSelectedRecurrence();
+
             var task = new TaskItem
             {
                 ProfileId = _profileId,
                 Title = TaskTitleInput.Text.Trim(),
                 Notes = TaskNotesInput.Text.Trim(),
-                Date = _selectedDate
+                Date = _selectedDate,
+                Recurrence = recurrence,
+                RecurrenceEndDate = (recurrence != RecurrenceType.None && RecurrenceEndPicker.SelectedDate.HasValue)
+                    ? RecurrenceEndPicker.SelectedDate.Value
+                    : (DateTime?)null
             };
 
             _taskService.AddTask(task);
             TaskTitleInput.Text = "";
             TaskNotesInput.Text = "";
+            RecurrenceCombo.SelectedIndex = 0;
+            RecurrenceEndPicker.SelectedDate = null;
+            RecurrenceEndPicker.Visibility = Visibility.Collapsed;
             LoadTasksForDate(_selectedDate);
             BuildCalendar();
         }
