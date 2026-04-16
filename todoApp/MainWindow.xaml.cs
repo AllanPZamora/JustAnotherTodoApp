@@ -26,6 +26,7 @@ namespace todoApp
         public MainWindow(string profileId, string profileName, string profileColor, string theme)
         {
             InitializeComponent();
+            TopBar.MouseLeftButtonDown += TopBar_MouseLeftButtonDown;
             _profileId = profileId;
             _profileName = profileName;
             _profileColor = profileColor;
@@ -33,6 +34,7 @@ namespace todoApp
             _currentProfile = _profileService.LoadProfiles().Find(p => p.Id == profileId)!;
             Loaded += MainWindow_Loaded;
         }
+
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -50,6 +52,14 @@ namespace todoApp
             ProfileNameText.Cursor = Cursors.Hand;
 
             ApplyTheme(_currentTheme);
+        }
+
+        private void TopBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                this.DragMove();
+            }
         }
 
         private string GetInitials(string name)
