@@ -10,5 +10,6 @@ namespace todoApp
         public string Name { get; set; } = "";
         public string Color { get; set; } = "#E50914";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public string Theme { get; set; } = "Dark";
     }
 }

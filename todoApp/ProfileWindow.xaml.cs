@@ -112,7 +112,10 @@ namespace todoApp
 
             card.MouseLeftButtonUp += (s, e) =>
             {
-                MessageBox.Show($"Welcome, {vm.Name}!");
+                var profile = _profileService.LoadProfiles().Find(p => p.Id == vm.Id)!;
+                var mainWindow = new MainWindow(vm.Id, vm.Name, vm.Color, profile.Theme);
+                mainWindow.Show();
+                this.Close();
             };
 
             return card;
