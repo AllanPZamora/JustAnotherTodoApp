@@ -61,8 +61,22 @@ namespace todoApp
 
         private void TopBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-              if (e.ButtonState == MouseButtonState.Pressed)
-                 this.DragMove();
+            // Don't drag when the user clicked the profile circle or name —
+            // those have their own MouseLeftButtonUp handler for the settings popup.
+            // DragMove() captures the mouse and prevents Up events from firing.
+            if (e.OriginalSource is FrameworkElement src)
+            {
+                FrameworkElement? hit = src;
+                while (hit != null)
+                {
+                    if (hit == ProfileCircle || hit == ProfileNameText)
+                        return;
+                    hit = hit.Parent as FrameworkElement;
+                }
+            }
+
+            if (e.ButtonState == MouseButtonState.Pressed)
+                this.DragMove();
         }
 
         private string GetInitials(string name)

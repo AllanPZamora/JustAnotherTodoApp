@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -21,8 +21,6 @@ namespace todoApp
             _isDark = profile.Theme == "Dark";
 
             Owner = owner;
-
-            // Position near top left of owner
             Left = owner.Left + 16;
             Top = owner.Top + 55;
 
@@ -31,16 +29,49 @@ namespace todoApp
 
         private void SettingsPopup_Loaded(object sender, RoutedEventArgs e)
         {
-            // Fade in
             this.Opacity = 0;
             var fadeIn = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.2));
             this.BeginAnimation(Window.OpacityProperty, fadeIn);
 
-            // Set profile info
             ProfileNameText.Text = _profile.Name;
             ProfileInitialsText.Text = GetInitials(_profile.Name);
             ProfileCircle.Background = (SolidColorBrush)new BrushConverter().ConvertFrom(_profile.Color)!;
 
+            ApplyThemeToPopup();
+        }
+
+        // ─── Apply theme colors to every element in the popup ────────────
+
+        private void ApplyThemeToPopup()
+        {
+            var t = ThemeService.GetTheme(_isDark ? "Dark" : "Light");
+
+            // Window border
+            RootBorder.Background = t.TopBarBackground;
+            RootBorder.BorderBrush = t.ButtonBorder;
+
+            // Header
+            HeaderText.Foreground = t.PrimaryText;
+            CloseBtn.Foreground = t.SecondaryText;
+
+            // Dividers
+            Divider1.Background = t.ButtonBorder;
+            Divider2.Background = t.ButtonBorder;
+            Divider3.Background = t.ButtonBorder;
+
+            // Profile name
+            ProfileNameText.Foreground = t.PrimaryText;
+            ProfileSubText.Foreground = t.SecondaryText;
+
+            // Theme label
+            ThemeLabelText.Foreground = t.PrimaryText;
+            ThemeSubText.Foreground = t.SecondaryText;
+
+            // Delete button
+            DeleteProfileBtn.Background = t.ButtonBackground;
+            DeleteProfileBtn.BorderBrush = t.ButtonBorder;
+
+            // Toggle position & color
             UpdateToggleUI();
         }
 
@@ -77,7 +108,10 @@ namespace todoApp
                 _profileService.SaveProfiles(profiles);
             }
 
-            UpdateToggleUI();
+            // Re-theme the popup itself immediately
+            ApplyThemeToPopup();
+
+            // Notify the main window
             ThemeChanged?.Invoke(newTheme);
         }
 
@@ -91,12 +125,10 @@ namespace todoApp
 
             if (result == MessageBoxResult.Yes)
             {
-                // Delete profile
                 var profiles = _profileService.LoadProfiles();
                 profiles.RemoveAll(p => p.Id == _profile.Id);
                 _profileService.SaveProfiles(profiles);
 
-                // Delete all tasks for this profile
                 var taskService = new TaskService();
                 var tasks = taskService.LoadTasks();
                 tasks.RemoveAll(t => t.ProfileId == _profile.Id);
