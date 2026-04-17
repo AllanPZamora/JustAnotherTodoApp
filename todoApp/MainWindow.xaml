@@ -19,6 +19,7 @@
             <!-- Top Bar -->
             <Border x:Name="TopBar" Grid.Row="0" CornerRadius="20,20,0,0" Background="#141414">
                 <Grid Margin="16,0">
+                    
                     <!-- Left: Profile Info -->
                     <StackPanel Orientation="Horizontal"
                                 VerticalAlignment="Center"
@@ -236,31 +237,89 @@
                         </TextBox>
 
                         <!-- Recurrence Row -->
-                        <Grid Grid.Row="2" Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="6"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="2" Margin="0,0,0,8">
 
-                            <ComboBox x:Name="RecurrenceCombo"
-                                      Grid.Column="0"
-                                      Height="32"
-                                      FontSize="12"
-                                      SelectionChanged="RecurrenceCombo_SelectionChanged">
-                                <ComboBoxItem Content="No Repeat"  IsSelected="True"/>
-                                <ComboBoxItem Content="🔁 Daily"/>
-                                <ComboBoxItem Content="📅 Weekly"/>
-                                <ComboBoxItem Content="🗓 Monthly"/>
-                            </ComboBox>
+                            <!-- Repeat label -->
+                            <TextBlock Text="Repeat"
+                           FontSize="11"
+                           Foreground="#AAAAAA"
+                           Margin="0,0,0,4"/>
 
-                            <DatePicker x:Name="RecurrenceEndPicker"
-                                        Grid.Column="2"
-                                        Height="32"
-                                        FontSize="11"
-                                        Visibility="Collapsed"
-                                        ToolTip="End date (optional)"/>
-                        </Grid>
+                            <!-- 4 friendly toggle buttons -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border x:Name="BtnNone" Grid.Column="0"
+                            CornerRadius="6" Cursor="Hand"
+                            Background="#E50914"
+                            MouseLeftButtonUp="RecurrenceBtn_Click"
+                            Tag="None">
+                                                <TextBlock Text="None" FontSize="11" Foreground="White"
+                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                            </Border>
+
+                                            <Border x:Name="BtnDaily" Grid.Column="2"
+                            CornerRadius="6" Cursor="Hand"
+                            Background="#2A2A2A"
+                            MouseLeftButtonUp="RecurrenceBtn_Click"
+                            Tag="Daily">
+                                                <TextBlock Text="Daily" FontSize="11" Foreground="#AAAAAA"
+                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                            </Border>
+
+                                            <Border x:Name="BtnWeekly" Grid.Column="4"
+                            CornerRadius="6" Cursor="Hand"
+                            Background="#2A2A2A"
+                            MouseLeftButtonUp="RecurrenceBtn_Click"
+                            Tag="Weekly">
+                                                <TextBlock Text="Weekly" FontSize="11" Foreground="#AAAAAA"
+                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                            </Border>
+
+                                            <Border x:Name="BtnMonthly" Grid.Column="6"
+                            CornerRadius="6" Cursor="Hand"
+                            Background="#2A2A2A"
+                            MouseLeftButtonUp="RecurrenceBtn_Click"
+                            Tag="Monthly">
+                                                <TextBlock Text="Monthly" FontSize="11" Foreground="#AAAAAA"
+                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                            </Border>
+                                        </Grid>
+
+                                        <!-- Ends At row — only visible when Daily/Weekly/Monthly selected -->
+                                        <StackPanel x:Name="EndsAtRow"
+                            Orientation="Horizontal"
+                            Margin="0,8,0,0"
+                            Visibility="Collapsed">
+                                            <TextBlock Text="Ends at:"
+                               FontSize="11"
+                               Foreground="#AAAAAA"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                                            <Border x:Name="EndDateBtn"
+                            CornerRadius="6"
+                            Background="#2A2A2A"
+                            BorderBrush="#444444"
+                            BorderThickness="1"
+                            Padding="10,5"
+                            Cursor="Hand"
+                            MouseLeftButtonUp="EndDateBtn_Click">
+                                                <TextBlock x:Name="EndDateBtnText"
+                                   Text="Pick a date"
+                                   FontSize="11"
+                                   Foreground="#AAAAAA"/>
+                                            </Border>
+                                        </StackPanel>
+
+                        </StackPanel>
 
                         <!-- Notes Input -->
                         <TextBox x:Name="TaskNotesInput"
