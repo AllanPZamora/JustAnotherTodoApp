@@ -141,6 +141,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="44"/>
                         <RowDefinition Height="32"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -179,8 +180,54 @@
                     <!-- Day Headers -->
                     <Grid x:Name="DayHeadersGrid" Grid.Row="1" Margin="0,4,0,0"/>
 
+                    <!-- End Date Picking Banner -->
+                    <Border x:Name="EndDatePickBanner"
+                            Grid.Row="2"
+                            Background="#2A2A2A"
+                            CornerRadius="8"
+                            Margin="0,4,0,4"
+                            Padding="10,6"
+                            Visibility="Collapsed">
+                        <Grid>
+                            <TextBlock Text="📅 Click any date on the calendar to set the end date"
+                                       FontSize="12"
+                                       Foreground="#AAAAAA"
+                                       VerticalAlignment="Center"/>
+                            <Button x:Name="CancelEndDateBtn"
+                                    Content="Cancel"
+                                    FontSize="11"
+                                    Height="24"
+                                    Padding="10,0"
+                                    HorizontalAlignment="Right"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Click="CancelEndDateBtn_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#555555"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#777777"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+
                     <!-- Calendar Grid -->
-                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
                         <Grid x:Name="CalendarGrid" Margin="0,4,0,0"/>
                     </ScrollViewer>
                 </Grid>
