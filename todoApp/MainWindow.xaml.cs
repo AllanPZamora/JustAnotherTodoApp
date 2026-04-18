@@ -439,8 +439,9 @@ namespace todoApp
 
         private void ShowTaskDetail(TaskItem task, DateTime date, AppTheme t)
         {
-            DetailTitle.Text       = task.Title;
-            DetailTitle.Foreground = t.PrimaryText;
+            DetailPanel.Background  = t.TaskPanelBackground;
+            DetailTitle.Text        = task.Title;
+            DetailTitle.Foreground  = t.PrimaryText;
 
             string dateStr = date.ToString("dddd, MMMM d, yyyy");
             if (task.Recurrence != RecurrenceType.None)
@@ -460,22 +461,15 @@ namespace todoApp
             DetailDate.Foreground   = t.SecondaryText;
             DetailDateBadge.Background = t.ButtonBackground;
 
+            DetailDivider.Background = t.CalendarCellBorder;
+
             bool hasNotes           = !string.IsNullOrWhiteSpace(task.Notes);
             DetailNotes.Text        = hasNotes ? task.Notes : "No description.";
             DetailNotes.Foreground  = hasNotes ? t.PrimaryText : t.SecondaryText;
             DetailNotes.FontStyle   = hasNotes ? FontStyles.Normal : FontStyles.Italic;
 
-            if (!_detailPanelOpen)
-            {
-                _detailPanelOpen = true;
-                var anim = new GridLengthAnimation
-                {
-                    From     = new GridLength(0),
-                    To       = new GridLength(400),
-                    Duration = new Duration(TimeSpan.FromSeconds(0.25))
-                };
-                DetailPanelColumn.BeginAnimation(ColumnDefinition.WidthProperty, anim);
-            }
+            _detailPanelOpen = true;
+            DetailPanel.Visibility = Visibility.Visible;
         }
 
         // ─── Recurrence Buttons ───────────────────────────────────────────

@@ -107,21 +107,22 @@
                 <Grid x:Name="TasksDashboard" Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <!-- Left list: fixed width so it sits tight next to the detail panel -->
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition x:Name="DetailPanelColumn" Width="0"/>
+                        <ColumnDefinition Width="320"/>
+                        <ColumnDefinition x:Name="DetailPanelColumn" Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left: Task List -->
                     <ScrollViewer Grid.Column="0"
                                   VerticalScrollBarVisibility="Auto"
-                                  Margin="16,16,0,16">
+                                  Margin="16,16,12,16">
                         <StackPanel x:Name="DashboardPanel"
                                     HorizontalAlignment="Stretch"/>
                     </ScrollViewer>
 
                     <!-- Right: Task Detail Panel (slides open flush against the list) -->
                     <Border Grid.Column="1" x:Name="DetailPanel"
-                            Background="#141414" CornerRadius="0,0,20,0">
+                            CornerRadius="0,0,20,0"
+                            Visibility="Collapsed">
                         <Grid Margin="20,16,20,16">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -152,7 +153,7 @@
                             </Border>
 
                             <!-- Divider -->
-                            <Border Grid.Row="2" Height="1"
+                            <Border x:Name="DetailDivider" Grid.Row="2" Height="1"
                                     Background="#333333"
                                     Margin="0,0,0,16"/>
 
