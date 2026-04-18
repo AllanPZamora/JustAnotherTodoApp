@@ -19,76 +19,50 @@
             <!-- Top Bar -->
             <Border x:Name="TopBar" Grid.Row="0" CornerRadius="20,20,0,0" Background="#141414">
                 <Grid Margin="16,0">
-                    
+
                     <!-- Left: Profile Info -->
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Left">
-
-                        <Border x:Name="ProfileCircle"
-                                Width="36" Height="36"
-                                CornerRadius="18"
-                                Background="#E50914"
-                                Margin="0,0,10,0">
-                            <TextBlock x:Name="ProfileInitialsText"
-                                       Text="?"
-                                       FontSize="14"
-                                       FontWeight="Bold"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <Border x:Name="ProfileCircle" Width="36" Height="36" CornerRadius="18"
+                                Background="#E50914" Margin="0,0,10,0">
+                            <TextBlock x:Name="ProfileInitialsText" Text="?" FontSize="14" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-
-                        <TextBlock x:Name="ProfileNameText"
-                                   Text="Profile"
-                                   FontSize="15"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
+                        <TextBlock x:Name="ProfileNameText" Text="Profile" FontSize="15" FontWeight="Bold"
+                                   Foreground="White" VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Right: Controls -->
-                    <StackPanel Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
 
-                        <!-- Month/Week Toggle -->
-                        <Border CornerRadius="8"
-                                Background="#2A2A2A"
-                                BorderBrush="#444444"
-                                BorderThickness="1"
-                                Margin="0,0,10,0">
+                        <!-- Tasks / Calendar Mode Toggle -->
+                        <Border x:Name="ModeToggleBorder" CornerRadius="8" Background="#2A2A2A"
+                                BorderBrush="#444444" BorderThickness="1" Margin="0,0,10,0">
                             <StackPanel Orientation="Horizontal">
-                                <Button x:Name="MonthViewBtn"
-                                        Content="Month"
-                                        FontSize="12"
-                                        Width="60" Height="30"
-                                        Background="#E50914"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        Click="MonthViewBtn_Click"/>
-                                <Button x:Name="WeekViewBtn"
-                                        Content="Week"
-                                        FontSize="12"
-                                        Width="60" Height="30"
-                                        Background="Transparent"
-                                        Foreground="#AAAAAA"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        Click="WeekViewBtn_Click"/>
+                                <Button x:Name="TasksViewBtn" Content="Tasks" FontSize="12"
+                                        Width="65" Height="30" Background="Transparent" Foreground="#AAAAAA"
+                                        BorderThickness="0" Cursor="Hand" Click="TasksViewBtn_Click"/>
+                                <Button x:Name="CalendarViewBtn" Content="Calendar" FontSize="12"
+                                        Width="72" Height="30" Background="#E50914" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Click="CalendarViewBtn_Click"/>
                             </StackPanel>
                         </Border>
 
-                        <!-- Logout Button -->
-                        <Button x:Name="LogoutBtn"
-                                Content="⏏ Logout"
-                                FontSize="12"
-                                Height="30"
-                                Padding="10,0"
-                                Margin="0,0,10,0"
-                                Foreground="White"
-                                Cursor="Hand"
+                        <!-- Month/Week Toggle (only visible in Calendar mode) -->
+                        <Border x:Name="CalViewToggleBorder" CornerRadius="8" Background="#2A2A2A"
+                                BorderBrush="#444444" BorderThickness="1" Margin="0,0,10,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Button x:Name="MonthViewBtn" Content="Month" FontSize="12"
+                                        Width="60" Height="30" Background="#E50914" Foreground="White"
+                                        BorderThickness="0" Cursor="Hand" Click="MonthViewBtn_Click"/>
+                                <Button x:Name="WeekViewBtn" Content="Week" FontSize="12"
+                                        Width="60" Height="30" Background="Transparent" Foreground="#AAAAAA"
+                                        BorderThickness="0" Cursor="Hand" Click="WeekViewBtn_Click"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Logout -->
+                        <Button x:Name="LogoutBtn" Content="⏏ Logout" FontSize="12" Height="30"
+                                Padding="10,0" Margin="0,0,10,0" Foreground="White" Cursor="Hand"
                                 Click="LogoutBtn_Click">
                             <Button.Style>
                                 <Style TargetType="Button">
@@ -104,14 +78,9 @@
                             </Button.Style>
                         </Button>
 
-                        <!-- Close Button -->
-                        <Button x:Name="CloseBtn"
-                                Content="✕"
-                                FontSize="16"
-                                Width="36" Height="36"
-                                Foreground="White"
-                                Cursor="Hand"
-                                Click="CloseBtn_Click">
+                        <!-- Close -->
+                        <Button x:Name="CloseBtn" Content="✕" FontSize="16" Width="36" Height="36"
+                                Foreground="White" Cursor="Hand" Click="CloseBtn_Click">
                             <Button.Style>
                                 <Style TargetType="Button">
                                     <Setter Property="Background" Value="#2A2A2A"/>
@@ -129,87 +98,263 @@
                 </Grid>
             </Border>
 
-            <!-- Main Content -->
+            <!-- Body: Tasks Dashboard + Calendar (only one visible at a time) -->
             <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition x:Name="TaskPanelColumn" Width="0"/>
-                </Grid.ColumnDefinitions>
 
-                <!-- Calendar Area -->
-                <Grid Grid.Column="0" Margin="16">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="44"/>
-                        <RowDefinition Height="32"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <!-- ══════════════════════════════════════════════════
+                     TASKS DASHBOARD VIEW
+                     ══════════════════════════════════════════════════ -->
+                <Grid x:Name="TasksDashboard" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <!-- Left list: fixed width so it sits tight next to the detail panel -->
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition x:Name="DetailPanelColumn" Width="0"/>
+                    </Grid.ColumnDefinitions>
 
-                    <!-- Month Navigation -->
-                    <Grid Grid.Row="0">
-                        <Button x:Name="PrevBtn"
-                                Content="◀"
-                                Width="32" Height="32"
-                                HorizontalAlignment="Left"
-                                Background="Transparent"
-                                Foreground="White"
-                                BorderBrush="#444444"
-                                BorderThickness="1"
-                                Cursor="Hand"
-                                Click="PrevBtn_Click"/>
+                    <!-- Left: Task List -->
+                    <ScrollViewer Grid.Column="0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Margin="16,16,0,16">
+                        <StackPanel x:Name="DashboardPanel"
+                                    HorizontalAlignment="Stretch"/>
+                    </ScrollViewer>
 
-                        <TextBlock x:Name="MonthYearText"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
+                    <!-- Right: Task Detail Panel (slides open flush against the list) -->
+                    <Border Grid.Column="1" x:Name="DetailPanel"
+                            Background="#141414" CornerRadius="0,0,20,0">
+                        <Grid Margin="20,16,20,16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                        <Button x:Name="NextBtn"
-                                Content="▶"
-                                Width="32" Height="32"
-                                HorizontalAlignment="Right"
-                                Background="Transparent"
-                                Foreground="White"
-                                BorderBrush="#444444"
-                                BorderThickness="1"
-                                Cursor="Hand"
-                                Click="NextBtn_Click"/>
+                            <!-- Title -->
+                            <TextBlock x:Name="DetailTitle"
+                                       Grid.Row="0"
+                                       FontSize="20" FontWeight="Bold"
+                                       Foreground="White"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,10"/>
+
+                            <!-- Date badge -->
+                            <Border Grid.Row="1"
+                                    x:Name="DetailDateBadge"
+                                    CornerRadius="6"
+                                    Background="#2A2A2A"
+                                    HorizontalAlignment="Left"
+                                    Padding="10,5"
+                                    Margin="0,0,0,16">
+                                <TextBlock x:Name="DetailDate"
+                                           FontSize="12"
+                                           Foreground="#AAAAAA"/>
+                            </Border>
+
+                            <!-- Divider -->
+                            <Border Grid.Row="2" Height="1"
+                                    Background="#333333"
+                                    Margin="0,0,0,16"/>
+
+                            <!-- Notes / Description -->
+                            <ScrollViewer Grid.Row="3"
+                                          VerticalScrollBarVisibility="Auto">
+                                <TextBlock x:Name="DetailNotes"
+                                           FontSize="13"
+                                           Foreground="#CCCCCC"
+                                           TextWrapping="Wrap"
+                                           LineHeight="20"/>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ══════════════════════════════════════════════════
+                     CALENDAR VIEW  (default)
+                     ══════════════════════════════════════════════════ -->
+                <Grid x:Name="CalendarView" Visibility="Visible">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition x:Name="TaskPanelColumn" Width="0"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Calendar Area -->
+                    <Grid Grid.Column="0" Margin="16">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="44"/>
+                            <RowDefinition Height="32"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Month Navigation -->
+                        <Grid Grid.Row="0">
+                            <Button x:Name="PrevBtn" Content="◀" Width="32" Height="32"
+                                    HorizontalAlignment="Left" Background="Transparent" Foreground="White"
+                                    BorderBrush="#444444" BorderThickness="1" Cursor="Hand" Click="PrevBtn_Click"/>
+                            <TextBlock x:Name="MonthYearText" FontSize="20" FontWeight="Bold"
+                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Button x:Name="NextBtn" Content="▶" Width="32" Height="32"
+                                    HorizontalAlignment="Right" Background="Transparent" Foreground="White"
+                                    BorderBrush="#444444" BorderThickness="1" Cursor="Hand" Click="NextBtn_Click"/>
+                        </Grid>
+
+                        <!-- Day Headers -->
+                        <Grid x:Name="DayHeadersGrid" Grid.Row="1" Margin="0,4,0,0"/>
+
+                        <!-- End Date Picking Banner -->
+                        <Border x:Name="EndDatePickBanner" Grid.Row="2"
+                                Background="#2A2A2A" CornerRadius="8"
+                                Margin="0,4,0,4" Padding="10,6" Visibility="Collapsed">
+                            <Grid>
+                                <TextBlock Text="📅 Click any date to set the recurrence end date"
+                                           FontSize="12" Foreground="#AAAAAA" VerticalAlignment="Center"/>
+                                <Button x:Name="CancelEndDateBtn" Content="Cancel" FontSize="11"
+                                        Height="24" Padding="10,0" HorizontalAlignment="Right"
+                                        Foreground="White" BorderThickness="0" Cursor="Hand"
+                                        Click="CancelEndDateBtn_Click">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="#555555"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#777777"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Calendar Grid -->
+                        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+                            <Grid x:Name="CalendarGrid" Margin="0,4,0,0"/>
+                        </ScrollViewer>
                     </Grid>
 
-                    <!-- Day Headers -->
-                    <Grid x:Name="DayHeadersGrid" Grid.Row="1" Margin="0,4,0,0"/>
+                    <!-- Task Panel (slides in from right) -->
+                    <Border Grid.Column="1" x:Name="TaskPanel" Background="#141414" CornerRadius="0,0,20,0">
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                    <!-- End Date Picking Banner -->
-                    <Border x:Name="EndDatePickBanner"
-                            Grid.Row="2"
-                            Background="#2A2A2A"
-                            CornerRadius="8"
-                            Margin="0,4,0,4"
-                            Padding="10,6"
-                            Visibility="Collapsed">
-                        <Grid>
-                            <TextBlock Text="📅 Click any date on the calendar to set the end date"
-                                       FontSize="12"
-                                       Foreground="#AAAAAA"
-                                       VerticalAlignment="Center"/>
-                            <Button x:Name="CancelEndDateBtn"
-                                    Content="Cancel"
-                                    FontSize="11"
-                                    Height="24"
-                                    Padding="10,0"
-                                    HorizontalAlignment="Right"
-                                    Foreground="White"
-                                    BorderThickness="0"
-                                    Cursor="Hand"
-                                    Click="CancelEndDateBtn_Click">
+                            <TextBlock x:Name="SelectedDateText" Grid.Row="0" FontSize="18" FontWeight="Bold"
+                                       Foreground="White" Margin="0,0,0,16"/>
+
+                            <TextBox x:Name="TaskTitleInput" Grid.Row="1" FontSize="13" Padding="8"
+                                     Background="#2A2A2A" Foreground="White" BorderBrush="#444444"
+                                     CaretBrush="White" Margin="0,0,0,8">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="1" CornerRadius="6">
+                                                        <ScrollViewer x:Name="PART_ContentHost" Margin="4"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <!-- Recurrence Row -->
+                            <StackPanel Grid.Row="2" Margin="0,0,0,8">
+                                <TextBlock Text="Repeat" FontSize="11" Foreground="#AAAAAA" Margin="0,0,0,4"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="4"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="4"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="4"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border x:Name="BtnNone" Grid.Column="0" CornerRadius="6" Cursor="Hand"
+                                            Background="#E50914" MouseLeftButtonUp="RecurrenceBtn_Click" Tag="None">
+                                        <TextBlock Text="None" FontSize="11" Foreground="White"
+                                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                    </Border>
+                                    <Border x:Name="BtnDaily" Grid.Column="2" CornerRadius="6" Cursor="Hand"
+                                            Background="#2A2A2A" MouseLeftButtonUp="RecurrenceBtn_Click" Tag="Daily">
+                                        <TextBlock Text="Daily" FontSize="11" Foreground="#AAAAAA"
+                                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                    </Border>
+                                    <Border x:Name="BtnWeekly" Grid.Column="4" CornerRadius="6" Cursor="Hand"
+                                            Background="#2A2A2A" MouseLeftButtonUp="RecurrenceBtn_Click" Tag="Weekly">
+                                        <TextBlock Text="Weekly" FontSize="11" Foreground="#AAAAAA"
+                                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                    </Border>
+                                    <Border x:Name="BtnMonthly" Grid.Column="6" CornerRadius="6" Cursor="Hand"
+                                            Background="#2A2A2A" MouseLeftButtonUp="RecurrenceBtn_Click" Tag="Monthly">
+                                        <TextBlock Text="Monthly" FontSize="11" Foreground="#AAAAAA"
+                                                   HorizontalAlignment="Center" Margin="0,6"/>
+                                    </Border>
+                                </Grid>
+                                <StackPanel x:Name="EndsAtRow" Orientation="Horizontal"
+                                            Margin="0,8,0,0" Visibility="Collapsed">
+                                    <TextBlock Text="Ends at:" FontSize="11" Foreground="#AAAAAA"
+                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <Border x:Name="EndDateBtn" CornerRadius="6" Background="#2A2A2A"
+                                            BorderBrush="#444444" BorderThickness="1" Padding="10,5"
+                                            Cursor="Hand" MouseLeftButtonUp="EndDateBtn_Click">
+                                        <TextBlock x:Name="EndDateBtnText" Text="Pick a date"
+                                                   FontSize="11" Foreground="#AAAAAA"/>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <TextBox x:Name="TaskNotesInput" Grid.Row="3" FontSize="12" Padding="8"
+                                     Height="60" TextWrapping="Wrap" AcceptsReturn="True"
+                                     Background="#2A2A2A" Foreground="White" BorderBrush="#444444"
+                                     CaretBrush="White" Margin="0,0,0,8" VerticalScrollBarVisibility="Auto">
+                                <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="TextBox">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="1" CornerRadius="6">
+                                                        <ScrollViewer x:Name="PART_ContentHost" Margin="4"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </TextBox.Style>
+                            </TextBox>
+
+                            <Button x:Name="AddTaskBtn" Grid.Row="4" Content="+ Add Task" FontSize="13"
+                                    Height="34" Background="#E50914" Foreground="White" BorderThickness="0"
+                                    Cursor="Hand" Margin="0,0,0,16" Click="AddTaskBtn_Click">
                                 <Button.Style>
                                     <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#555555"/>
+                                        <Setter Property="Background" Value="#E50914"/>
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="6">
                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                 </ControlTemplate>
@@ -217,230 +362,19 @@
                                         </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#777777"/>
+                                                <Setter Property="Background" Value="#FF1A1A"/>
                                             </Trigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
+
+                            <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Auto">
+                                <StackPanel x:Name="TasksList"/>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
-
-                    <!-- Calendar Grid -->
-                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-                        <Grid x:Name="CalendarGrid" Margin="0,4,0,0"/>
-                    </ScrollViewer>
                 </Grid>
-
-                <!-- Task Panel (slides in from right) -->
-                <Border Grid.Column="1"
-                        x:Name="TaskPanel"
-                        Background="#141414"
-                        CornerRadius="0,0,20,0">
-                    <Grid Margin="16">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Selected Date -->
-                        <TextBlock x:Name="SelectedDateText"
-                                   Grid.Row="0"
-                                   FontSize="18"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   Margin="0,0,0,16"/>
-
-                        <!-- Task Title Input -->
-                        <TextBox x:Name="TaskTitleInput"
-                                 Grid.Row="1"
-                                 FontSize="13"
-                                 Padding="8"
-                                 Background="#2A2A2A"
-                                 Foreground="White"
-                                 BorderBrush="#444444"
-                                 CaretBrush="White"
-                                 Margin="0,0,0,8">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="1"
-                                                        CornerRadius="6">
-                                                    <ScrollViewer x:Name="PART_ContentHost" Margin="4"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-
-                        <!-- Recurrence Row -->
-                        <StackPanel Grid.Row="2" Margin="0,0,0,8">
-
-                            <!-- Repeat label -->
-                            <TextBlock Text="Repeat"
-                           FontSize="11"
-                           Foreground="#AAAAAA"
-                           Margin="0,0,0,4"/>
-
-                            <!-- 4 friendly toggle buttons -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="4"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border x:Name="BtnNone" Grid.Column="0"
-                            CornerRadius="6" Cursor="Hand"
-                            Background="#E50914"
-                            MouseLeftButtonUp="RecurrenceBtn_Click"
-                            Tag="None">
-                                                <TextBlock Text="None" FontSize="11" Foreground="White"
-                                   HorizontalAlignment="Center" Margin="0,6"/>
-                                            </Border>
-
-                                            <Border x:Name="BtnDaily" Grid.Column="2"
-                            CornerRadius="6" Cursor="Hand"
-                            Background="#2A2A2A"
-                            MouseLeftButtonUp="RecurrenceBtn_Click"
-                            Tag="Daily">
-                                                <TextBlock Text="Daily" FontSize="11" Foreground="#AAAAAA"
-                                   HorizontalAlignment="Center" Margin="0,6"/>
-                                            </Border>
-
-                                            <Border x:Name="BtnWeekly" Grid.Column="4"
-                            CornerRadius="6" Cursor="Hand"
-                            Background="#2A2A2A"
-                            MouseLeftButtonUp="RecurrenceBtn_Click"
-                            Tag="Weekly">
-                                                <TextBlock Text="Weekly" FontSize="11" Foreground="#AAAAAA"
-                                   HorizontalAlignment="Center" Margin="0,6"/>
-                                            </Border>
-
-                                            <Border x:Name="BtnMonthly" Grid.Column="6"
-                            CornerRadius="6" Cursor="Hand"
-                            Background="#2A2A2A"
-                            MouseLeftButtonUp="RecurrenceBtn_Click"
-                            Tag="Monthly">
-                                                <TextBlock Text="Monthly" FontSize="11" Foreground="#AAAAAA"
-                                   HorizontalAlignment="Center" Margin="0,6"/>
-                                            </Border>
-                                        </Grid>
-
-                                        <!-- Ends At row — only visible when Daily/Weekly/Monthly selected -->
-                                        <StackPanel x:Name="EndsAtRow"
-                            Orientation="Horizontal"
-                            Margin="0,8,0,0"
-                            Visibility="Collapsed">
-                                            <TextBlock Text="Ends at:"
-                               FontSize="11"
-                               Foreground="#AAAAAA"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                                            <Border x:Name="EndDateBtn"
-                            CornerRadius="6"
-                            Background="#2A2A2A"
-                            BorderBrush="#444444"
-                            BorderThickness="1"
-                            Padding="10,5"
-                            Cursor="Hand"
-                            MouseLeftButtonUp="EndDateBtn_Click">
-                                                <TextBlock x:Name="EndDateBtnText"
-                                   Text="Pick a date"
-                                   FontSize="11"
-                                   Foreground="#AAAAAA"/>
-                                            </Border>
-                                        </StackPanel>
-
-                        </StackPanel>
-
-                        <!-- Notes Input -->
-                        <TextBox x:Name="TaskNotesInput"
-                                 Grid.Row="3"
-                                 FontSize="12"
-                                 Padding="8"
-                                 Height="60"
-                                 TextWrapping="Wrap"
-                                 AcceptsReturn="True"
-                                 Background="#2A2A2A"
-                                 Foreground="White"
-                                 BorderBrush="#444444"
-                                 CaretBrush="White"
-                                 Margin="0,0,0,8"
-                                 VerticalScrollBarVisibility="Auto">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="1"
-                                                        CornerRadius="6">
-                                                    <ScrollViewer x:Name="PART_ContentHost" Margin="4"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-
-                        <!-- Add Task Button -->
-                        <Button x:Name="AddTaskBtn"
-                                Grid.Row="4"
-                                Content="+ Add Task"
-                                FontSize="13"
-                                Height="34"
-                                Background="#E50914"
-                                Foreground="White"
-                                BorderThickness="0"
-                                Cursor="Hand"
-                                Margin="0,0,0,16"
-                                Click="AddTaskBtn_Click">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="#E50914"/>
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        CornerRadius="6">
-                                                    <ContentPresenter HorizontalAlignment="Center"
-                                                                      VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#FF1A1A"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <!-- Tasks List -->
-                        <ScrollViewer Grid.Row="5" VerticalScrollBarVisibility="Auto">
-                            <StackPanel x:Name="TasksList"/>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
             </Grid>
         </Grid>
     </Border>
