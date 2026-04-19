@@ -116,16 +116,26 @@ namespace todoApp
                 NextBtn.BorderBrush         = t.ButtonBorder;
 
                 // Calendar sub-toggle
-                MonthViewBtn.Background = _isMonthView ? t.AccentColor : Brushes.Transparent;
-                MonthViewBtn.Foreground = _isMonthView ? Brushes.White  : t.SecondaryText;
-                WeekViewBtn.Background  = !_isMonthView ? t.AccentColor : Brushes.Transparent;
-                WeekViewBtn.Foreground  = !_isMonthView ? Brushes.White  : t.SecondaryText;
+                MonthViewBtn.Background = _isMonthView  ? t.AccentColor : t.TopBarButtonBackground;
+                MonthViewBtn.Foreground = _isMonthView  ? Brushes.White  : t.TopBarButtonText;
+                WeekViewBtn.Background  = !_isMonthView ? t.AccentColor : t.TopBarButtonBackground;
+                WeekViewBtn.Foreground  = !_isMonthView ? Brushes.White  : t.TopBarButtonText;
 
                 // Mode toggle
-                TasksViewBtn.Background    = _isTasksView  ? t.AccentColor : Brushes.Transparent;
-                TasksViewBtn.Foreground    = _isTasksView  ? Brushes.White  : t.SecondaryText;
-                CalendarViewBtn.Background = !_isTasksView ? t.AccentColor : Brushes.Transparent;
-                CalendarViewBtn.Foreground = !_isTasksView ? Brushes.White  : t.SecondaryText;
+                TasksViewBtn.Background    = _isTasksView  ? t.AccentColor : t.TopBarButtonBackground;
+                TasksViewBtn.Foreground    = _isTasksView  ? Brushes.White  : t.TopBarButtonText;
+                CalendarViewBtn.Background = !_isTasksView ? t.AccentColor : t.TopBarButtonBackground;
+                CalendarViewBtn.Foreground = !_isTasksView ? Brushes.White  : t.TopBarButtonText;
+                ModeToggleBorder.Background     = t.TopBarButtonBackground;
+                ModeToggleBorder.BorderBrush    = t.ButtonBorder;
+                CalViewToggleBorder.Background  = t.TopBarButtonBackground;
+                CalViewToggleBorder.BorderBrush = t.ButtonBorder;
+                LogoutBtn.Background  = t.TopBarButtonBackground;
+                LogoutBtn.BorderBrush = t.ButtonBorder;
+                LogoutBtn.Foreground  = t.TopBarButtonText;
+                CloseBtn.Background   = t.TopBarButtonBackground;
+                CloseBtn.BorderBrush  = t.ButtonBorder;
+                CloseBtn.Foreground   = t.TopBarButtonText;
 
                 TaskPanel.Background        = t.TaskPanelBackground;
                 TaskTitleInput.Background   = t.InputBackground;
@@ -138,10 +148,17 @@ namespace todoApp
 
                 UpdateRecurrenceBtnTheme(t);
 
+                // Always update detail panel colors regardless of current view
+                DetailPanel.Background = t.TaskPanelBackground;
+                DetailDivider.Background = t.CalendarCellBorder;
+                DetailTitle.Foreground = t.PrimaryText;
+                DetailDate.Foreground  = t.SecondaryText;
+                DetailDateBadge.Background = t.ButtonBackground;
+                DetailNotes.Foreground = t.PrimaryText;
+
                 if (_isTasksView)
                 {
                     BuildDashboard();
-                    DetailPanel.Background = t.TaskPanelBackground;
                     if (_selectedDashboardTask != null)
                         ShowTaskDetail(_selectedDashboardTask, _selectedDashboardDate, t);
                 }
@@ -162,8 +179,8 @@ namespace todoApp
             if (_isTasksView) return;
             _isTasksView = true;
             var t = ThemeService.GetTheme(_currentTheme);
-            TasksViewBtn.Background    = t.AccentColor;   TasksViewBtn.Foreground    = Brushes.White;
-            CalendarViewBtn.Background = Brushes.Transparent; CalendarViewBtn.Foreground = t.SecondaryText;
+            TasksViewBtn.Background    = t.AccentColor;             TasksViewBtn.Foreground    = Brushes.White;
+            CalendarViewBtn.Background = t.TopBarButtonBackground; CalendarViewBtn.Foreground = t.TopBarButtonText;
 
             CalendarView.Visibility    = Visibility.Collapsed;
             TasksDashboard.Visibility  = Visibility.Visible;
@@ -176,8 +193,8 @@ namespace todoApp
             if (!_isTasksView) return;
             _isTasksView = false;
             var t = ThemeService.GetTheme(_currentTheme);
-            CalendarViewBtn.Background = t.AccentColor;   CalendarViewBtn.Foreground = Brushes.White;
-            TasksViewBtn.Background    = Brushes.Transparent; TasksViewBtn.Foreground    = t.SecondaryText;
+            CalendarViewBtn.Background = t.AccentColor;             CalendarViewBtn.Foreground = Brushes.White;
+            TasksViewBtn.Background    = t.TopBarButtonBackground; TasksViewBtn.Foreground    = t.TopBarButtonText;
 
             TasksDashboard.Visibility  = Visibility.Collapsed;
             CalendarView.Visibility    = Visibility.Visible;
@@ -941,8 +958,8 @@ namespace todoApp
         {
             _isMonthView = true;
             var t = ThemeService.GetTheme(_currentTheme);
-            MonthViewBtn.Background = t.AccentColor;       MonthViewBtn.Foreground = Brushes.White;
-            WeekViewBtn.Background  = Brushes.Transparent; WeekViewBtn.Foreground  = t.SecondaryText;
+            MonthViewBtn.Background = t.AccentColor;             MonthViewBtn.Foreground = Brushes.White;
+            WeekViewBtn.Background  = t.TopBarButtonBackground; WeekViewBtn.Foreground  = t.TopBarButtonText;
             BuildCalendar();
         }
 
@@ -950,8 +967,8 @@ namespace todoApp
         {
             _isMonthView = false;
             var t = ThemeService.GetTheme(_currentTheme);
-            WeekViewBtn.Background  = t.AccentColor;       WeekViewBtn.Foreground  = Brushes.White;
-            MonthViewBtn.Background = Brushes.Transparent; MonthViewBtn.Foreground = t.SecondaryText;
+            WeekViewBtn.Background  = t.AccentColor;             WeekViewBtn.Foreground  = Brushes.White;
+            MonthViewBtn.Background = t.TopBarButtonBackground; MonthViewBtn.Foreground = t.TopBarButtonText;
             BuildCalendar();
         }
 

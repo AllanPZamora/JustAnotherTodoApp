@@ -6,6 +6,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
+        Icon="/clipboard.ico"
         ShowInTaskbar="False">
 
     <Border CornerRadius="20" Background="#1F1F1F" Padding="20">

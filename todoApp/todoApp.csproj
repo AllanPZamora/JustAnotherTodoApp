@@ -8,4 +8,12 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="clipboard.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="clipboard.ico" />
+  </ItemGroup>
+
 </Project>
