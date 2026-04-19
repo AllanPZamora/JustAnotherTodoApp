@@ -9,14 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\clipboard.ico" />
     <None Remove="clipboard.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\clipboard.ico">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="clipboard.ico" />
   </ItemGroup>
 
