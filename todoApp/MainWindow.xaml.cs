@@ -138,10 +138,17 @@ namespace todoApp
 
                 UpdateRecurrenceBtnTheme(t);
 
+                // Always update detail panel colors regardless of current view
+                DetailPanel.Background = t.TaskPanelBackground;
+                DetailDivider.Background = t.CalendarCellBorder;
+                DetailTitle.Foreground = t.PrimaryText;
+                DetailDate.Foreground  = t.SecondaryText;
+                DetailDateBadge.Background = t.ButtonBackground;
+                DetailNotes.Foreground = t.PrimaryText;
+
                 if (_isTasksView)
                 {
                     BuildDashboard();
-                    DetailPanel.Background = t.TaskPanelBackground;
                     if (_selectedDashboardTask != null)
                         ShowTaskDetail(_selectedDashboardTask, _selectedDashboardDate, t);
                 }
