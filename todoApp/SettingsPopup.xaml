@@ -7,6 +7,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         ResizeMode="NoResize"
+        Icon="/clipboard.ico"
         Background="Transparent">
 
     <Border x:Name="RootBorder"
