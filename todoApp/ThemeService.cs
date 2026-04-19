@@ -21,6 +21,8 @@ namespace todoApp
         public SolidColorBrush ButtonBackground { get; set; }
         public SolidColorBrush ButtonBorder { get; set; }
         public SolidColorBrush CompletedText { get; set; }
+        public SolidColorBrush TopBarButtonBackground { get; set; }
+        public SolidColorBrush TopBarButtonText { get; set; }
     }
 
     public static class ThemeService
@@ -50,7 +52,9 @@ namespace todoApp
             AccentHover = Brush("#FF1A1A"),
             ButtonBackground = Brush("#2A2A2A"),
             ButtonBorder = Brush("#444444"),
-            CompletedText = Brush("#666666")
+            CompletedText = Brush("#666666"),
+            TopBarButtonBackground = Brush("#2A2A2A"),
+            TopBarButtonText = Brush("#FFFFFF")
         };
 
         private static AppTheme LightTheme() => new AppTheme
@@ -71,7 +75,9 @@ namespace todoApp
             AccentHover = Brush("#1446BB"),
             ButtonBackground = Brush("#FFFFFF"),
             ButtonBorder = Brush("#C0CCEE"),
-            CompletedText = Brush("#AAAAAA")
+            CompletedText = Brush("#AAAAAA"),
+            TopBarButtonBackground = Brush("#E8EEFF"),
+            TopBarButtonText = Brush("#1A1A2E")
         };
 
         private static SolidColorBrush Brush(string hex)
